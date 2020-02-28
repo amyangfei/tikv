@@ -563,12 +563,13 @@ impl TiKVServer {
         }
 
         // Start CDC.
-        let cdc_endpoint = cdc::Endpoint::new(
+        let mut cdc_endpoint = cdc::Endpoint::new(
             self.pd_client.clone(),
             cdc_worker.scheduler(),
             apply_router,
             cdc_ob,
         );
+        cdc_endpoint.set_min_ts_interval(Duration::from_secs(1));
         cdc_worker
             .start(cdc_endpoint)
             .unwrap_or_else(|e| fatal!("failed to start cdc: {}", e));
