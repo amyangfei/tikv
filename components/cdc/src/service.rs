@@ -17,6 +17,7 @@ use crate::endpoint::{Deregister, Task};
 
 static CONNECTION_ID_ALLOC: AtomicUsize = AtomicUsize::new(0);
 
+const CDC_MSG_CAP_COUNT: usize = 64;
 const CDC_MSG_NOTIFY_COUNT: usize = 8;
 const CDC_MAX_RESP_SIZE: usize = 6 * 1024 * 1024; // 6MB
 const CDC_MSG_MAX_BATCH_SIZE: usize = 128;
@@ -117,7 +118,7 @@ impl ChangeData for Service {
             return;
         }
         // TODO: make it a bounded channel.
-        let (tx, rx) = batch::unbounded(CDC_MSG_NOTIFY_COUNT);
+        let (tx, rx) = batch::bounded(CDC_MSG_CAP_COUNT,CDC_MSG_NOTIFY_COUNT);
         let conn = Conn::new(tx);
         let conn_id = conn.get_id();
 
